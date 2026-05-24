@@ -14,26 +14,26 @@ client = clickhouse_connect.get_client(
 
 # Создаём базу данных для нашего проекта
 # IF NOT EXISTS — не выдаёт ошибку если база уже существует
-client.command("CREATE DATABASE IF NOT EXISTS hh")
-
-# Создаём таблицу для вакансий
-# MergeTree — основной движок ClickHouse для аналитических запросов
-# ORDER BY — по какому полю сортируются данные внутри таблицы
+# Удаляем и создаём таблицу заново с актуальной схемой
+client.command("DROP TABLE IF EXISTS hh.vacancies")
 client.command("""
-    CREATE TABLE IF NOT EXISTS hh.vacancies (
-        title       String,       -- название вакансии
-        company     String,       -- компания
-        salary      String,       -- зарплата (текст, т.к. формат разный)
-        link        String,       -- ссылка на вакансию
-        skills_found String       -- найденные навыки через запятую
+    CREATE TABLE hh.vacancies (
+        title           String,
+        company         String,
+        salary          String,
+        link            String,
+        experience      String,
+        grade           String,
+        remote          String,
+        metro           String,
+        query           String,
+        skills_found    String,
+        published_date  String
     )
     ENGINE = MergeTree()
     ORDER BY title
 """)
-
-print("База и таблица созданы")
-client.command("TRUNCATE TABLE hh.vacancies")
-print("Таблица очищена")
+print("Таблица пересоздана")
 # Читаем CSV который собрали парсером
 df = pd.read_csv("data/vacancies.csv", encoding="utf-8-sig")
 print(f"Столбцы в CSV: {df.columns.tolist()}")  # добавь эту строку
