@@ -1,12 +1,15 @@
 import clickhouse_connect
 import pandas as pd
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 # Подключаемся к ClickHouse
 client = clickhouse_connect.get_client(
     host="localhost",
     port=8123,
     username="default",
-    password="admin"
+    password=os.getenv("CLICKHOUSE_PASSWORD")
 )
 
 # Создаём базу данных для нашего проекта
